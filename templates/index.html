@@ -11,36 +11,36 @@
     </div>
 </header>
 <body>
-    <div class="container">
-        <h1>To Do List</h1>
-        <div class="form-container">
-            <form action="/add" method="post">
-                <input type="text" name="title" placeholder="New Task Title" required>
-                <input type="text" name="description" placeholder="Task Description" required>
-                <button type="submit">Add</button>
-            </form>
-        </div>
-        <ul>
-            {{range .}}
-            <li class="{{if .Status}}completed{{end}}">
-                <div class="task-content">
-                    <span>{{.Title}} - {{.Description}}</span>
-                </div>
-                <div class="task-actions">
-                    <a href="/toggle?id={{.ID.Hex}}" class="toggle-btn">Toggle</a>
-                    <a href="/delete?id={{.ID.Hex}}" class="delete-btn">Delete</a>
-                    <button class="edit-btn">Edit</button>
-                </div>
-                <form action="/edit" method="post" class="edit-container">
-                    <input type="hidden" name="id" value="{{.ID.Hex}}">
-                    <input type="text" name="title" value="{{.Title}}">
-                    <input type="text" name="description" value="{{.Description}}">
-                    <button type="submit">Save</button>
-                </form>
-            </li>
-            {{end}}
-        </ul>
+<div class="container">
+    <h1>To Do List</h1>
+    <div class="form-container">
+        <form action="/add" method="post">
+            <input type="text" name="title" placeholder="New Task Title" required>
+            <input type="text" name="description" placeholder="Task Description">
+            <button type="submit">Add</button>
+        </form>
     </div>
+    <ul>
+        {{range .}}
+        <li class="{{if .Status}}completed{{end}}">
+            <div class="task-content">
+                <span>{{.Title}} - {{if .Description}}{{.Description}}{{else}}{{end}}</span>
+            </div>
+            <div class="task-actions">
+                <a href="/toggle?id={{.ID.Hex}}" class="toggle-btn">Toggle</a>
+                <a href="/delete?id={{.ID.Hex}}" class="delete-btn">Delete</a>
+                <button class="edit-btn">Edit</button>
+            </div>
+            <form action="/edit" method="post" class="edit-container">
+                <input type="hidden" name="id" value="{{.ID.Hex}}">
+                <input type="text" name="title" value="{{.Title}}">
+                <input type="text" name="description" value="{{.Description}}">
+                <button type="submit">Save</button>
+            </form>
+        </li>
+        {{end}}
+    </ul>
+</div>
 <script src="/static/js/scripts.js"></script>
 </body>
 </html>

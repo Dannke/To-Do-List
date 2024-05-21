@@ -41,11 +41,18 @@ header {
 }
 
 .container {
-    width: 80%;
-    max-width: 600px;
-    background: #fff;
+    width: 900px;
+    margin: 100px auto 0; /* Adjusted margin for fixed header */
+    background-color: #fff;
     padding: 20px;
-    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.log_reg_container {
+    width: 500px;
+    margin: 100px auto 0; /* Adjusted margin for fixed header */
+    background-color: #fff;
+    padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 

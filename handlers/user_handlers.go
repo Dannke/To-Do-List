@@ -20,9 +20,22 @@ func Register(tmpl *template.Template, collection *mongo.Collection, mu *sync.Mu
 		if r.Method == http.MethodPost {
 			username := r.FormValue("username")
 			password := r.FormValue("password")
+			confirmPassword := r.FormValue("confirmPassword")
 
-			if username == "" || password == "" {
+			if username == "" || password == "" || confirmPassword == "" {
 				tmpl.ExecuteTemplate(w, "register.html", "All fields are required")
+				return
+			}
+
+			// Check if passwords match
+			if password != confirmPassword {
+				tmpl.ExecuteTemplate(w, "register.html", "Passwords do not match")
+				return
+			}
+
+			// Validate input
+			if !isValidInput(username) || !isValidInput(password) {
+				tmpl.ExecuteTemplate(w, "register.html", "Invalid input")
 				return
 			}
 
@@ -39,9 +52,17 @@ func Register(tmpl *template.Template, collection *mongo.Collection, mu *sync.Mu
 			defer cancel()
 
 			mu.Lock()
-			_, err := collection.InsertOne(ctx, newUser)
-			mu.Unlock()
+			defer mu.Unlock()
 
+			// Check if username is unique
+			var existingUser models.User
+			err := collection.FindOne(ctx, bson.M{"username": username}).Decode(&existingUser)
+			if err == nil {
+				tmpl.ExecuteTemplate(w, "register.html", "Username already exists")
+				return
+			}
+
+			_, err = collection.InsertOne(ctx, newUser)
 			if err != nil {
 				tmpl.ExecuteTemplate(w, "register.html", "Registration failed")
 				return
@@ -62,6 +83,12 @@ func Login(tmpl *template.Template, collection *mongo.Collection, mu *sync.Mutex
 
 			if username == "" || password == "" {
 				tmpl.ExecuteTemplate(w, "login.html", "All fields are required")
+				return
+			}
+
+			// Validate input
+			if !isValidInput(username) || !isValidInput(password) {
+				tmpl.ExecuteTemplate(w, "login.html", "Invalid input")
 				return
 			}
 
@@ -109,6 +136,7 @@ func Logout() http.HandlerFunc {
 	}
 }
 
+// isValidInput checks for invalid characters in the input to prevent injections
 func isValidInput(input string) bool {
 	validInput := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 	return validInput.MatchString(input)

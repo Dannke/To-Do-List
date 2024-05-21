@@ -68,10 +68,17 @@ func AddTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
 			title := r.FormValue("title")
 			description := r.FormValue("description")
 
+			if title == "" {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+
 			newTask := models.Task{
+				ID:          primitive.NewObjectID(),
+				UserID:      userID,
 				Title:       title,
 				Description: description,
-				UserID:      userID,
+				Status:      false,
 			}
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -82,11 +89,13 @@ func AddTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
 			mu.Unlock()
 
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Redirect(w, r, "/", http.StatusInternalServerError)
 				return
 			}
 
 			http.Redirect(w, r, "/", http.StatusSeeOther)
+		} else {
+			http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
 		}
 	}
 }
