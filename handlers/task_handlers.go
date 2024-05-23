@@ -56,50 +56,6 @@ func Index(tmpl *template.Template, collection *mongo.Collection, mu *sync.Mutex
 	}
 }
 
-func AddTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			userID, err := getUserID(r)
-			if err != nil {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
-				return
-			}
-
-			title := r.FormValue("title")
-			description := r.FormValue("description")
-
-			if title == "" {
-				http.Redirect(w, r, "/", http.StatusSeeOther)
-				return
-			}
-
-			newTask := models.Task{
-				ID:          primitive.NewObjectID(),
-				UserID:      userID,
-				Title:       title,
-				Description: description,
-				Status:      false,
-			}
-
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
-
-			mu.Lock()
-			_, err = collection.InsertOne(ctx, newTask)
-			mu.Unlock()
-
-			if err != nil {
-				http.Redirect(w, r, "/", http.StatusInternalServerError)
-				return
-			}
-
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-		} else {
-			http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
-		}
-	}
-}
-
 func ToggleTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := getUserID(r)
@@ -171,6 +127,52 @@ func DeleteTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
 	}
 }
 
+func AddTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			userID, err := getUserID(r)
+			if err != nil {
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				return
+			}
+
+			title := r.FormValue("title")
+			description := r.FormValue("description")
+
+			if title == "" {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+
+			newTask := models.Task{
+				ID:          primitive.NewObjectID(),
+				UserID:      userID,
+				Title:       title,
+				Description: description,
+				Status:      false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			mu.Lock()
+			_, err = collection.InsertOne(ctx, newTask)
+			mu.Unlock()
+
+			if err != nil {
+				http.Redirect(w, r, "/", http.StatusInternalServerError)
+				return
+			}
+
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		} else {
+			http.Redirect(w, r, "/", http.StatusMethodNotAllowed)
+		}
+	}
+}
+
 func EditTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
@@ -194,7 +196,7 @@ func EditTask(collection *mongo.Collection, mu *sync.Mutex) http.HandlerFunc {
 			defer cancel()
 
 			filter := bson.M{"_id": id, "userId": userID}
-			update := bson.M{"$set": bson.M{"title": title, "description": description}}
+			update := bson.M{"$set": bson.M{"title": title, "description": description, "updated_at": time.Now()}}
 			mu.Lock()
 			_, err = collection.UpdateOne(ctx, filter, update)
 			mu.Unlock()

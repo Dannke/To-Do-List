@@ -1,3 +1,5 @@
+/* Ваши существующие стили */
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -22,6 +24,7 @@ header {
 }
 
 .logout-container {
+    margin: 5px;
     display: inline-block;
 }
 
@@ -46,6 +49,10 @@ header {
     background-color: #fff;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    overflow: hidden; /* To ensure the container does not grow larger */
 }
 
 .log_reg_container {
@@ -59,6 +66,10 @@ header {
 h1 {
     text-align: center;
     color: #333;
+    margin-bottom: 20px;
+}
+
+.form-container {
     margin-bottom: 20px;
 }
 
@@ -104,6 +115,9 @@ a:hover {
 ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto; /* To enable scrolling */
 }
 
 li {
@@ -115,6 +129,7 @@ li {
     justify-content: space-between;
     align-items: center;
     transition: background-color 0.3s;
+    word-wrap: break-word;
 }
 
 li.completed {
@@ -157,16 +172,6 @@ li.completed .task-content span {
     background-color: #c9302c;
 }
 
-.edit-container {
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.edit-container.active {
-    display: flex;
-}
-
 .done {
     text-decoration: line-through;
     color: #aaa;
@@ -179,4 +184,17 @@ li.completed .task-content span {
 
 .register {
     color: cornflowerblue;
+}
+
+.task-content span {
+    max-width: 600px; /* Adjust this value to fit your design */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timestamps {
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #777;
 }

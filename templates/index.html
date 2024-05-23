@@ -25,13 +25,20 @@
         <li class="{{if .Status}}completed{{end}}">
             <div class="task-content">
                 <span>{{.Title}} - {{if .Description}}{{.Description}}{{else}}{{end}}</span>
+                <div class="timestamps">
+                    {{if .UpdatedAt.Equal .CreatedAt}}
+                    <small>Created at: {{.CreatedAt.Format "02 Jan 2006 15:04"}}</small>
+                    {{else}}
+                    <small>Updated at: {{.UpdatedAt.Format "02 Jan 2006 15:04"}}</small>
+                    {{end}}
+                </div>
             </div>
             <div class="task-actions">
                 <a href="/toggle?id={{.ID.Hex}}" class="toggle-btn">Toggle</a>
                 <a href="/delete?id={{.ID.Hex}}" class="delete-btn">Delete</a>
                 <button class="edit-btn">Edit</button>
             </div>
-            <form action="/edit" method="post" class="edit-container">
+            <form action="/edit" method="post" class="edit-container" style="display: none;">
                 <input type="hidden" name="id" value="{{.ID.Hex}}">
                 <input type="text" name="title" value="{{.Title}}">
                 <input type="text" name="description" value="{{.Description}}">
